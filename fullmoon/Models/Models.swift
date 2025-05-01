@@ -19,6 +19,9 @@ public extension ModelConfiguration {
         case .deepseek_r1_distill_qwen_1_5b_8bit: .reasoning
         case .qwen3_1_7b_4bit: .reasoning
         case .qwen3_0_6b_4bit: .reasoning
+        case .qwen3_0_6b_bf16: .reasoning
+        case .qwen3_1_7b_abliterated_bf16: .reasoning
+        case .qwen3_4b_4bit: .reasoning
         default: .regular
         }
     }
@@ -52,6 +55,18 @@ extension ModelConfiguration: @retroactive Equatable {
     public static let qwen3_0_6b_4bit = ModelConfiguration(
         id: "mlx-community/Qwen3-0.6B-4bit"
     )
+    
+    public static let qwen3_0_6b_bf16 = ModelConfiguration(
+        id: "mlx-community/Qwen3-0.6B-bf16"
+    )
+    
+    public static let qwen3_1_7b_abliterated_bf16 = ModelConfiguration(
+        id: "mlx-community/Josiefied-Qwen3-1.7B-abliterated-v1-bf16"
+    )
+    
+    public static let qwen3_4b_4bit = ModelConfiguration(
+        id: "mlx-community/Qwen3-4B-4bit"
+    )
 
     public static var availableModels: [ModelConfiguration] = [
         llama_3_2_1b_4bit,
@@ -59,7 +74,10 @@ extension ModelConfiguration: @retroactive Equatable {
         deepseek_r1_distill_qwen_1_5b_4bit,
         deepseek_r1_distill_qwen_1_5b_8bit,
         qwen3_1_7b_4bit,
-        qwen3_0_6b_4bit
+        qwen3_0_6b_4bit,
+        qwen3_0_6b_bf16,
+        qwen3_1_7b_abliterated_bf16,
+        qwen3_4b_4bit
     ]
 
     public static var defaultModel: ModelConfiguration {
@@ -115,6 +133,9 @@ extension ModelConfiguration: @retroactive Equatable {
         case .deepseek_r1_distill_qwen_1_5b_8bit: return 1.9
         case .qwen3_1_7b_4bit: return 1.0
         case .qwen3_0_6b_4bit: return 0.5
+        case .qwen3_0_6b_bf16: return 0.6
+        case .qwen3_1_7b_abliterated_bf16: return 1.7
+        case .qwen3_4b_4bit: return 0.629
         default: return nil
         }
     }
