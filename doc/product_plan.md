@@ -29,6 +29,10 @@
 * **量化支持**：已支持 4-bit、8-bit 和 BFloat16 等不同量化级别，在保持模型质量的同时优化性能和存储。
 * **基础对话系统**：支持基本的聊天功能，包括系统提示和上下文管理。
 * **应用架构**：使用 SwiftUI 构建现代化、响应式 UI。
+* **已实现核心聊天功能**：
+  * 基础 LLM 集成（Llama, DeepSeek, Qwen 等模型）
+  * 简单的单会话聊天界面
+  * 基础模型管理
 
 ## 4. 功能路线图（迭代方法）
 
@@ -121,30 +125,43 @@
 * **辅助引擎选项：**
   * [llama.cpp](https://github.com/ggerganov/llama.cpp) - 用于支持更多模型格式 
   * [CoreML](https://developer.apple.com/documentation/coreml) - 用于针对 Apple 硬件优化的模型
+  * [MLC-LLM](https://github.com/mlc-ai/mlc-llm) - 高性能跨平台推理引擎
+  * [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) - 用于语音识别功能
+  * [SwiftLLM](https://github.com/huggingface/swift-transformers) - HuggingFace的Swift原生实现
 
 ### 模型支持扩展计划
 
 * **文本模型增强：**
   * 考虑添加 [Phi-3](https://huggingface.co/microsoft/phi-3-mini-4k-instruct) 系列小型模型
   * 探索 [MiniCPM](https://github.com/OpenBMB/MiniCPM) 等高效小型模型
+  * 评估 [Gemma 3]系列模型
+  * 考虑 [TinyLlama](https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0) 等超轻量模型
   * 为特定任务定制微调小型专用模型
 
 * **图像生成模型：**
   * SD-Turbo（单步扩散）
   * Tiny SD（更小版本）
   * [PixArt-Alpha](https://github.com/PixArt-alpha/PixArt-alpha)（如有轻量版）
+  * [Latent Consistency Model](https://github.com/luosiallen/latent-consistency-model)（LCM，高速单步扩散）
+  * [SDXL-Lightning](https://huggingface.co/ByteDance/SDXL-Lightning)（4-8步高速生成）
+  * [DiT](https://github.com/facebookresearch/DiT)（Diffusion Transformers，适合移动设备）
   
 * **嵌入模型：**
-  * E5-small
-  * MiniLM-L6
-  * Nomic-Embed-Text（如有轻量版）
+  * [E5-small](https://huggingface.co/intfloat/e5-small)（轻量级通用嵌入）
+  * [MiniLM-L6](https://huggingface.co/microsoft/MiniLM-L6-v2)（高效文本嵌入）
+  * [Nomic-Embed-Text](https://huggingface.co/nomic-ai/nomic-embed-text-v1)（如有轻量版）
+  * [GTE-small](https://huggingface.co/thenlper/gte-small)（高效通用文本嵌入）
+  * [BGE-M3](https://huggingface.co/BAAI/bge-m3)（多语言支持，适合中文场景）
+  * [Jina Embeddings](https://huggingface.co/jinaai/jina-embeddings-v2-small-en)（小型版本，高性能）
 
 ### 性能优化策略
 
-* **模型量化：** 继续支持 2-bit、4-bit、8-bit、BFloat16 等量化级别
+* **模型量化：** 继续支持 2-bit、4-bit、8-bit、BFloat16 等量化级别，评估 [GPTQ](https://github.com/IST-DASLab/gptq) 和 [AWQ](https://github.com/mit-han-lab/llm-awq) 等高级量化技术
 * **缓存优化：** 实现智能缓存系统，根据使用频率管理模型加载/卸载
 * **批处理：** 优化输入批处理以提高吞吐量
 * **硬件利用：** 充分利用 Apple Neural Engine (ANE)，针对不同芯片优化模型加载策略
+* **推理优化：** 实现 [Speculative Decoding](https://arxiv.org/abs/2211.17192) 和 [Medusa](https://sites.google.com/view/medusa-llm) 等先进推理加速技术
+* **内存管理：** 采用 [Continuous Batching](https://github.com/vllm-project/vllm) 技术减少内存碎片
 
 ## 6. UI/UX 设计规划
 
@@ -153,6 +170,9 @@
 *   **状态反馈：** 增强视觉反馈系统，特别是对于长时间运行的任务（如模型下载、推理过程）
 *   **高级定制：** 允许用户自定义界面布局、主题和交互方式
 *   **原生集成：** 深度整合 iOS 系统特性，如分享扩展、焦点模式和快捷指令
+*   **现代UI框架：** 利用 [SwiftUI](https://developer.apple.com/xcode/swiftui/) 和 [Swift Charts](https://developer.apple.com/documentation/Charts) 构建现代化界面
+*   **自适应布局：** 优化在不同设备（iPhone、iPad）上的显示效果，支持分屏和Stage Manager
+*   **离线状态设计：** 明确的离线模式UI状态，确保用户了解当前网络连接对功能的影响
 
 ## 7. 开发与实施时间表
 
@@ -167,16 +187,25 @@
 ## 8. 关键技术挑战与解决方案
 
 * **内存管理：** 模型大小与设备内存限制的平衡
-  * 解决方案：实现动态模型加载/卸载，分层执行策略
+  * 解决方案：实现动态模型加载/卸载，分层执行策略，采用 [Attention Sinks](https://github.com/tomaarsen/attention_sinks) 等内存优化技术
   
 * **电池消耗：** 本地推理对电池寿命的影响
-  * 解决方案：批处理优化，模型选择智能化，后台任务管理
+  * 解决方案：批处理优化，模型选择智能化，后台任务管理，实现低功耗模式
   
 * **用户体验连贯性：** 模型加载与执行延迟可能破坏体验流畅性
-  * 解决方案：预加载常用模型，UI反馈优化，结果缓存策略
+  * 解决方案：预加载常用模型，UI反馈优化，结果缓存策略，实现流式输出
   
 * **存储管理：** 多模型并存对设备存储空间的压力
-  * 解决方案：云端同步可选功能，智能本地存储管理，模型生命周期管理
+  * 解决方案：云端同步可选功能，智能本地存储管理，模型生命周期管理，增量更新机制
+  
+* **多模态集成：** 文本、图像和语音模型的协同工作
+  * 解决方案：统一的多模态接口设计，模块化架构，高效的跨模态数据传输
+  
+* **隐私保护：** 确保用户数据在本地处理过程中的安全
+  * 解决方案：实现端到端加密，沙盒化模型执行环境，透明的数据使用政策
+  
+* **模型更新：** 保持本地模型与最新研究进展同步
+  * 解决方案：增量模型更新系统，差异化下载，模型版本管理
 
 ## 9. 结论
 
